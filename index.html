@@ -2,169 +2,132 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Cryptopedia Dashboard</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--tg-theme-bg-color,#0f0f0f);color:var(--tg-theme-text-color,#f0f0f0);padding:12px;min-height:100vh}
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-h1{font-size:16px;font-weight:600}
-.badge{background:#003315;color:#22c55e;font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid #005522;margin-left:6px}
-.rbtn{background:var(--tg-theme-button-color,#1a1a2e);border:1px solid #333;color:var(--tg-theme-button-text-color,#fff);padding:7px 14px;border-radius:10px;font-size:12px;cursor:pointer}
-.rbtn.loading{opacity:0.7}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--tg-theme-bg-color,#111);color:var(--tg-theme-text-color,#f0f0f0);padding:12px;min-height:100vh}
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+h1{font-size:16px;font-weight:700}
+.badge{background:#003315;color:#22c55e;font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid #005522}
 .ts{font-size:10px;color:#666;margin-top:3px}
+.rbtn{background:var(--tg-theme-button-color,#2563eb);color:#fff;padding:8px 16px;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-weight:600}
 .card{background:var(--tg-theme-secondary-bg-color,#1a1a1a);border-radius:14px;padding:14px;margin-bottom:10px}
-.chdr{display:flex;align-items:center;gap:9px;margin-bottom:12px}
-.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
-.av.pro{background:#2d1f00;color:#f5a623}
-.av.ai{background:#001a2d;color:#4a9eff}
-.ct{font-size:13px;font-weight:600}
+.chdr{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.pro-av{background:#2d1f00;color:#f5a623}
+.ai-av{background:#001a2d;color:#4a9eff}
+.ct{font-size:14px;font-weight:600}
 .cs{font-size:10px;color:#666}
-.mg{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.m{background:rgba(255,255,255,0.05);border-radius:9px;padding:9px 10px}
-.ml{font-size:10px;color:#888;margin-bottom:2px}
-.mv{font-size:15px;font-weight:600}
-.g{color:#22c55e}.r{color:#ef4444}
-.hb{border-radius:9px;padding:11px;margin-bottom:7px}
-.am{background:#1c1400}.pu{background:#120d2a}.gr{background:#001a0a}
-.hl{font-size:10px;margin-bottom:3px}
-.am .hl{color:#b37700}.pu .hl{color:#7c5cbf}.gr .hl{color:#166534}
-.hv{font-size:20px;font-weight:700}
-.am .hv{color:#f59e0b}.pu .hv{color:#a78bfa}.gr .hv{color:#22c55e}
-.dv{border:none;border-top:1px solid rgba(255,255,255,0.1);margin:10px 0}
-.total{background:var(--tg-theme-secondary-bg-color,#1a1a1a);border-radius:14px;padding:14px;margin-bottom:10px}
-.tg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.ti{text-align:center;background:rgba(255,255,255,0.05);border-radius:9px;padding:9px 5px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+.box{background:rgba(255,255,255,0.06);border-radius:9px;padding:9px 10px}
+.bl{font-size:10px;color:#888;margin-bottom:3px}
+.bv{font-size:14px;font-weight:600}
+.sep{border:none;border-top:1px solid rgba(255,255,255,0.08);margin:10px 0}
+.hbox{border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.km-box{background:#1c1400}
+.ps-box{background:#120d2a}
+.gt-box{background:#001a0a}
+.hbl{font-size:10px;margin-bottom:4px}
+.km-box .hbl{color:#b37700}
+.ps-box .hbl{color:#7c5cbf}
+.gt-box .hbl{color:#166534}
+.hbv{font-size:22px;font-weight:700}
+.km-box .hbv{color:#f59e0b}
+.ps-box .hbv{color:#a78bfa}
+.gt-box .hbv{color:#22c55e}
+.total-card{background:var(--tg-theme-secondary-bg-color,#1a1a1a);border-radius:14px;padding:14px;margin-bottom:10px}
+.tg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.ti{text-align:center;background:rgba(255,255,255,0.06);border-radius:9px;padding:10px 5px}
 .tl{font-size:9px;color:#888;margin-bottom:3px}
-.tv{font-size:14px;font-weight:700}
-.gb{margin-top:10px;background:#001a0a;border-radius:11px;padding:12px;text-align:center}
-.gl{font-size:11px;color:#166534;margin-bottom:3px}
-.gv{font-size:26px;font-weight:700;color:#22c55e}
-.ls{color:#444}
-.err{font-size:11px;color:#ef4444;text-align:center;padding:6px}
+.tv{font-size:15px;font-weight:700}
+.grand{background:#001a0a;border-radius:11px;padding:14px;text-align:center}
+.gl{font-size:11px;color:#166534;margin-bottom:4px}
+.gv{font-size:28px;font-weight:700;color:#22c55e}
+.g{color:#22c55e}.r{color:#ef4444}.amber{color:#f59e0b}.purple{color:#a78bfa}
+.loading{text-align:center;padding:40px;color:#666}
+.err{color:#ef4444;font-size:12px;text-align:center;padding:8px}
 </style>
 </head>
 <body>
-<div class="header">
+<div class="hdr">
   <div>
-    <h1>Cryptopedia Bots <span class="badge">CANLI</span></h1>
+    <h1>Cryptopedia <span class="badge">LIVE</span></h1>
     <div class="ts" id="ts">Yukleniyor...</div>
   </div>
-  <button class="rbtn" id="rb" onclick="load()">Guncelle</button>
+  <button class="rbtn" onclick="load()">&#x21BB; Guncelle</button>
 </div>
-
-<div id="pro-card" class="card">
-  <div class="chdr"><div class="av pro">PRO</div><div><div class="ct">Cryptopedia-AI-PRO</div><div class="cs">onebullex.com</div></div></div>
-  <div class="mg">
-    <div class="m"><div class="ml">AUM</div><div class="mv ls" id="p-aum">-</div></div>
-    <div class="m"><div class="ml">30d ROI</div><div class="mv g ls" id="p-roi">-</div></div>
-    <div class="m"><div class="ml">Win Rate</div><div class="mv ls" id="p-win">-</div></div>
-    <div class="m"><div class="ml">Subscribers</div><div class="mv ls" id="p-subs">-</div></div>
-    <div class="m"><div class="ml">Islem</div><div class="mv ls" id="p-trades">-</div></div>
-    <div class="m"><div class="ml">Volume</div><div class="mv ls" id="p-vol">-</div></div>
-  </div>
-  <div class="dv"></div>
-  <div class="mg" style="margin-bottom:9px">
-    <div class="m"><div class="ml">Toplam PnL</div><div class="mv g ls" id="p-pnl">-</div></div>
-    <div class="m"><div class="ml">Fee</div><div class="mv r ls" id="p-fee">-</div></div>
-    <div class="m" style="grid-column:span 2"><div class="ml">Net PnL</div><div class="mv g ls" id="p-np">-</div></div>
-  </div>
-  <div class="hb am"><div class="hl">Komisyon</div><div class="hv" id="p-km">-</div></div>
-  <div class="hb pu"><div class="hl">Profit Share (%20)</div><div class="hv" id="p-ps">-</div></div>
-  <div class="hb gr"><div class="hl">Toplam Gelir</div><div class="hv" id="p-tot">-</div></div>
-</div>
-
-<div id="ai-card" class="card">
-  <div class="chdr"><div class="av ai">AI</div><div><div class="ct">CryptopediaAI</div><div class="cs">onebullex.com</div></div></div>
-  <div class="mg">
-    <div class="m"><div class="ml">AUM</div><div class="mv ls" id="a-aum">-</div></div>
-    <div class="m"><div class="ml">30d ROI</div><div class="mv g ls" id="a-roi">-</div></div>
-    <div class="m"><div class="ml">Win Rate</div><div class="mv ls" id="a-win">-</div></div>
-    <div class="m"><div class="ml">Subscribers</div><div class="mv ls" id="a-subs">-</div></div>
-    <div class="m"><div class="ml">Islem</div><div class="mv ls" id="a-trades">-</div></div>
-    <div class="m"><div class="ml">Volume</div><div class="mv ls" id="a-vol">-</div></div>
-  </div>
-  <div class="dv"></div>
-  <div class="mg" style="margin-bottom:9px">
-    <div class="m"><div class="ml">Toplam PnL</div><div class="mv g ls" id="a-pnl">-</div></div>
-    <div class="m"><div class="ml">Fee</div><div class="mv r ls" id="a-fee">-</div></div>
-    <div class="m" style="grid-column:span 2"><div class="ml">Net PnL</div><div class="mv g ls" id="a-np">-</div></div>
-  </div>
-  <div class="hb am"><div class="hl">Komisyon</div><div class="hv" id="a-km">-</div></div>
-  <div class="hb pu"><div class="hl">Profit Share (%20)</div><div class="hv" id="a-ps">-</div></div>
-  <div class="hb gr"><div class="hl">Toplam Gelir</div><div class="hv" id="a-tot">-</div></div>
-</div>
-
-<div class="total">
-  <div class="tg">
-    <div class="ti"><div class="tl">Toplam Volume</div><div class="tv ls" id="t-vol">-</div></div>
-    <div class="ti"><div class="tl">Net PnL</div><div class="tv g ls" id="t-np">-</div></div>
-    <div class="ti"><div class="tl">Komisyon</div><div class="tv" style="color:#f59e0b" id="t-km">-</div></div>
-    <div class="ti"><div class="tl">Profit Share</div><div class="tv" style="color:#a78bfa" id="t-ps">-</div></div>
-  </div>
-  <div class="gb">
-    <div class="gl">Toplam Gelir</div>
-    <div class="gv" id="t-grand">-</div>
-  </div>
-</div>
+<div id="content"><div class="loading">Veriler yukleniyor...</div></div>
 <div class="err" id="err"></div>
 
 <script>
-try { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); } catch(e){}
+try{window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();}catch(e){}
 
-const P='https://api.allorigins.win/raw?url=';
-const BOTS=[
-  {k:'p',url:'https://www.onebullex.com/spartan-bot/Cryptopedia-AI-PRO',pnl:4986.17,fee:1893.13},
-  {k:'a',url:'https://www.onebullex.com/spartan-bot/CryptopediaAI',pnl:13772.74,fee:4556.36}
-];
+const DATA_URL='https://raw.githubusercontent.com/ismail-onebullex/cryptopedia-bot/main/data.json';
 
-function pv(s){if(!s)return 0;s=s.replace(/[$,\s]/g,'');const m=s.match(/([\d.]+)([MKB]?)/i);if(!m)return 0;const n=parseFloat(m[1]),u=m[2].toUpperCase();return u==='M'?n*1e6:u==='K'?n*1e3:n;}
-function fu(n){if(isNaN(n))return'-';if(n>=1e6)return'$'+(n/1e6).toFixed(2)+'M';return'$'+n.toLocaleString('en-US',{minimumFractionDigits:2});}
-function ss(id,v){const e=document.getElementById(id);if(e){e.textContent=v;e.classList.remove('ls');}}
+function fu(n){
+  if(typeof n!=='number'||isNaN(n))return'-';
+  if(n>=1e6)return'$'+(n/1e6).toFixed(2)+'M';
+  return'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
 
-async function fetchBot(bot){
-  try{
-    const r=await fetch(P+encodeURIComponent(bot.url));
-    const h=await r.text();
-    const d=new DOMParser().parseFromString(h,'text/html');
-    const t=d.body?d.body.innerText:'';
-    const sm=t.match(/(\d+)\s*Subscribers/);
-    const am=t.match(/AUM \(USDT\)[\s\S]{0,30}\$([\d,]+\.?\d*)/);
-    const rm=t.match(/30d ROI[\s\S]{0,40}([\d.]+)%/);
-    const wm=t.match(/Win Rate[\s\S]{0,40}([\d.]+)%/);
-    const tm=t.match(/Total Trades[\s\S]{0,15}([\d,]+)/);
-    const vm=t.match(/Trading Volume[\s\S]{0,10}\$([\d.]+[MKB]?)/i);
-    return{subs:sm?sm[1]:'-',aum:am?'$'+am[1]:'-',roi:rm?rm[1]+'%':'-',win:wm?wm[1]+'%':'-',trades:tm?tm[1]:'-',vs:vm?'$'+vm[1]:'-',vn:vm?pv(vm[1]):0,ok:true};
-  }catch(e){return{ok:false};}
+function botCard(b,cls){
+  return `<div class="card">
+    <div class="chdr">
+      <div class="av ${cls}">${cls==='pro-av'?'PRO':'AI'}</div>
+      <div><div class="ct">${b.label}</div><div class="cs">onebullex.com</div></div>
+    </div>
+    <div class="grid">
+      <div class="box"><div class="bl">AUM</div><div class="bv">${b.aum||'-'}</div></div>
+      <div class="box"><div class="bl">30d ROI</div><div class="bv g">${b.roi||'-'}</div></div>
+      <div class="box"><div class="bl">Win Rate</div><div class="bv">${b.win||'-'}</div></div>
+      <div class="box"><div class="bl">Subscribers</div><div class="bv">${b.subs||'-'}</div></div>
+      <div class="box"><div class="bl">Islem</div><div class="bv">${b.trades||'-'}</div></div>
+      <div class="box"><div class="bl">Volume</div><div class="bv">${b.vs||'-'}</div></div>
+    </div>
+    <hr class="sep">
+    <div class="grid">
+      <div class="box"><div class="bl">Toplam PnL</div><div class="bv g">${fu(b.pnl)}</div></div>
+      <div class="box"><div class="bl">Fee</div><div class="bv r">-${fu(b.fee)}</div></div>
+      <div class="box" style="grid-column:span 2"><div class="bl">Net PnL</div><div class="bv g">${fu(b.net_pnl)}</div></div>
+    </div>
+    <hr class="sep">
+    <div class="hbox km-box"><div class="hbl">Komisyon</div><div class="hbv">${fu(b.komisyon)}</div></div>
+    <div class="hbox ps-box"><div class="hbl">Profit Share (%20)</div><div class="hbv">${fu(b.profit_share)}</div></div>
+    <div class="hbox gt-box"><div class="hbl">Toplam Gelir</div><div class="hbv">${fu(b.toplam_gelir)}</div></div>
+  </div>`;
 }
 
 async function load(){
-  const rb=document.getElementById('rb');
-  const err=document.getElementById('err');
-  rb.classList.add('loading');
-  rb.textContent='Yukleniyor...';
-  err.textContent='';
+  document.getElementById('err').textContent='';
   try{
-    const [pro,ai]=await Promise.all(BOTS.map(b=>fetchBot(b)));
-    const bots=[pro,ai];
-    let tV=0,tN=0,tK=0,tP=0;
-    BOTS.forEach((bot,i)=>{
-      const d=bots[i],k=bot.k;
-      if(!d.ok)return;
-      const np=bot.pnl-bot.fee,km=d.vn*0.0005*0.6,ps=np*0.20;
-      tV+=d.vn;tN+=np;tK+=km;tP+=ps;
-      ss(k+'-aum',d.aum);ss(k+'-roi',d.roi);ss(k+'-win',d.win);
-      ss(k+'-subs',d.subs);ss(k+'-trades',d.trades);ss(k+'-vol',d.vs);
-      ss(k+'-pnl',fu(bot.pnl));ss(k+'-fee','-'+fu(bot.fee));ss(k+'-np',fu(np));
-      ss(k+'-km',fu(km));ss(k+'-ps',fu(ps));ss(k+'-tot',fu(km+ps));
-    });
-    ss('t-vol',fu(tV));ss('t-np',fu(tN));ss('t-km',fu(tK));ss('t-ps',fu(tP));ss('t-grand',fu(tK+tP));
-    const now=new Date();
-    document.getElementById('ts').textContent='Son: '+now.toLocaleDateString('tr-TR')+' '+now.toLocaleTimeString('tr-TR');
-  }catch(e){err.textContent='Hata: '+e.message;}
-  rb.classList.remove('loading');
-  rb.textContent='Guncelle';
+    const r=await fetch(DATA_URL+'?t='+Date.now());
+    if(!r.ok)throw new Error('Veri alinamadi');
+    const data=await r.json();
+    const t=data.total;
+    let html='';
+    if(data.bots&&data.bots.length>0){
+      html+=botCard(data.bots[0],'pro-av');
+      if(data.bots.length>1)html+=botCard(data.bots[1],'ai-av');
+    }
+    html+=`<div class="total-card">
+      <div class="tg">
+        <div class="ti"><div class="tl">Toplam Volume</div><div class="tv">${fu(t.volume)}</div></div>
+        <div class="ti"><div class="tl">Net PnL</div><div class="tv g">${fu(t.net_pnl)}</div></div>
+        <div class="ti"><div class="tl">Komisyon</div><div class="tv amber">${fu(t.komisyon)}</div></div>
+        <div class="ti"><div class="tl">Profit Share</div><div class="tv purple">${fu(t.profit_share)}</div></div>
+      </div>
+      <div class="grand">
+        <div class="gl">TOPLAM GELIR</div>
+        <div class="gv">${fu(t.toplam_gelir)}</div>
+      </div>
+    </div>`;
+    document.getElementById('content').innerHTML=html;
+    document.getElementById('ts').textContent='Son: ${data.updated||""}';
+  }catch(e){
+    document.getElementById('err').textContent='Hata: ${e.message}. Lutfen GitHub Actions calistirin.';
+  }
 }
 load();
 </script>
