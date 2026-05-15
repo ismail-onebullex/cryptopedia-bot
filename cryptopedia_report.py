@@ -1,9 +1,10 @@
 from playwright.sync_api import sync_playwright
 import re, requests
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 TOKEN = '8933487275:AAENSpwpbWoGMfyhLbHXWoHmOsCNwLK1Xmk'
 CHAT_ID = '2028252779'
+DUBAI = timezone(timedelta(hours=4))
 BOTS = [
     {'url':'https://www.onebullex.com/spartan-bot/Cryptopedia-AI-PRO','pnl':4986.17,'fee':1893.13,'label':'Cryptopedia-AI-PRO'},
     {'url':'https://www.onebullex.com/spartan-bot/CryptopediaAI','pnl':13772.74,'fee':4556.36,'label':'CryptopediaAI'}
@@ -24,15 +25,11 @@ def pv(s):
 def fetch_bot(page, bot):
     try:
         page.goto(bot['url'], timeout=60000)
-        # AUM elementinin yuklendigini bekle
         page.wait_for_selector('._sparbi_dataleft', timeout=15000)
         page.wait_for_timeout(2000)
         left = page.inner_text('._sparbi_dataleft')
         right = page.inner_text('._sparbi_dataright')
         body = page.inner_text('body')
-        def g(p, txt):
-            m = re.search(p, txt, re.DOTALL|re.IGNORECASE)
-            return m.group(1) if m else '-'
         sm = re.search(r'(\d+)\s*Subscribers', body)
         am = re.search(r'\$([\d,]+\.?\d*)', left)
         rm = re.search(r'([\d.]+)%', right)
@@ -53,7 +50,7 @@ def fetch_bot(page, bot):
         return {'subs':'-','aum':'-','roi':'-','win':'-','trades':'-','vs':'-','vn':0}
 
 def send():
-    now = datetime.now().strftime('%d.%m.%Y %H:%M')
+    now = datetime.now(DUBAI).strftime('%d.%m.%Y %H:%M') + ' (Dubai)'
     tV = tN = tK = tP = 0
     SEP = '─────────────'
     msg = '\U0001f4ca <b>Cryptopedia Dashboard</b>\n\U0001f550 ' + now + '\n'
