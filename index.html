@@ -124,7 +124,7 @@ async function load(){
       </div>
     </div>`;
     document.getElementById('content').innerHTML=html;
-    document.getElementById('ts').textContent='Son: ${data.updated||""}';
+    document.getElementById('ts').textContent='Son: '+(data.updated||'-');
   }catch(e){
     document.getElementById('err').textContent='Hata: ${e.message}. Lutfen GitHub Actions calistirin.';
   }
