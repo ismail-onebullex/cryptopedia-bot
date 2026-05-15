@@ -57,7 +57,7 @@ h1{font-size:16px;font-weight:700}
 <script>
 try{window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();}catch(e){}
 
-var DATA_URL = "https://raw.githubusercontent.com/ismail-onebullex/cryptopedia-bot/main/data.json";
+var DATA_URL = "https://api.github.com/repos/ismail-onebullex/cryptopedia-bot/contents/data.json";
 
 function fu(n) {
   if(typeof n !== "number" || isNaN(n)) return "-";
@@ -94,10 +94,10 @@ function botCard(b, cls) {
 function load() {
   document.getElementById("err").textContent = "";
   document.getElementById("ts").textContent = "Yukleniyor...";
-  fetch(DATA_URL + "?t=" + Date.now())
+  fetch(DATA_URL, {headers: {'Accept': 'application/vnd.github.v3+json'}})
     .then(function(r) {
       if(!r.ok) throw new Error("Veri alinamadi: " + r.status);
-      return r.json();
+      return r.json().then(function(api){var c=atob(api.content.replace(/\\n/g,''));return JSON.parse(c);});
     })
     .then(function(data) {
       var t = data.total;
