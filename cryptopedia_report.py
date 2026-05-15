@@ -93,13 +93,13 @@ def send_telegram(msg):
 
 def is_morning_run():
     now = datetime.now(DUBAI)
-    return now.hour == 9
+    return True  # TEST
 
 def send():
     now = datetime.now(DUBAI)
     now_str = now.strftime('%d.%m.%Y %H:%M') + ' (Dubai)'
     tV = tN = tK = tP = 0
-    SEP = 'Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ'
+    SEP = 'ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ'
     msg = '\U0001f4ca <b>Cryptopedia Dashboard</b>\n\U0001f550 ' + now_str + '\n'
     icons = ['\U0001f536', '\U0001f535']
     with sync_playwright() as p:
