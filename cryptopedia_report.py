@@ -88,7 +88,7 @@ def send():
     now = datetime.now(DUBAI)
     now_str = now.strftime('%d.%m.%Y %H:%M') + ' (Dubai)'
     today = now.strftime('%d.%m.%Y')
-    tV = tN = tK = tP = 0
+    tV = tN = tK = tP = tS = 0
     SEP = '-------------'
     msg = '\U0001f4ca <b>Cryptopedia Dashboard</b>\n\U0001f550 ' + now_str + '\n'
     icons = ['\U0001f536', '\U0001f535']
@@ -133,7 +133,7 @@ def send():
 
     # Gunluk degisim - snapshot bugune ait degilse gonder
     snap_file = gh_get('snapshot.json')
-    current = {'date': today, 'komisyon': tK, 'profit_share': tP, 'toplam_gelir': tK+tP, 'net_pnl': tN, 'volume': tV}
+    current = {'date': today, 'komisyon': tK, 'profit_share': tP, 'toplam_gelir': tK+tP, 'net_pnl': tN, 'volume': tV, 'subs': tS}
     if snap_file:
         prev = json.loads(base64.b64decode(snap_file['content']).decode())
         snap_date = prev.get('date', '')
@@ -144,9 +144,11 @@ def send():
             dG = (tK+tP) - prev.get('toplam_gelir', tK+tP)
             dN = tN - prev.get('net_pnl', tN)
             dV = tV - prev.get('volume', tV)
+            dS = tS - prev.get('subs', tS)
             snap_date_str = prev.get('date', '?')
             diff = f'\U0001f4c8 <b>Gunluk Degisim</b>\n'
             diff += f'\U0001f4c5 {snap_date_str} \u2192 {today}\n'
+            diff += f'\n\U0001f465 Subs: {dS:+d} ({prev.get("subs", tS)} → {tS})'
             diff += f'\n\U0001f4ca Volume: {fd(dV)}'
             diff += f'\n\u2705 Net PnL: {fd(dN)}'
             diff += f'\n\U0001f7e1 Komisyon: {fd(dK)}'
