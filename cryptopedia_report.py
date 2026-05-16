@@ -72,6 +72,16 @@ def gh_put(path, content, msg, sha=None):
     except Exception as e:
         print(f'gh_put error: {e}')
 
+def keep_alive():
+    try:
+        now = datetime.now(DUBAI).strftime('%d.%m.%Y %H:%M')
+        f = gh_get('last_run.txt')
+        sha = f['sha'] if f else None
+        gh_put('last_run.txt', f'Last run: {now} Dubai', 'keep-alive', sha)
+        print(f'Keep-alive commit: {now}')
+    except Exception as e:
+        print(f'Keep-alive error: {e}')
+
 def send_tg(msg):
     requests.post('https://api.telegram.org/bot'+TOKEN+'/sendMessage',
         json={'chat_id':CHAT_ID,'text':msg,'parse_mode':'HTML'}, timeout=10)
@@ -125,6 +135,9 @@ def send():
     }
     gh_put('data.json', json.dumps(data, ensure_ascii=False), 'Update data.json', data_sha)
     print(f'[{now_str}] data.json guncellendi!')
+
+    # Keep-alive commit - repo aktif kalsin, cron atlanasin
+    keep_alive()
 
     # Sabah 09:00 - gunluk degisim
     if is_morning():
