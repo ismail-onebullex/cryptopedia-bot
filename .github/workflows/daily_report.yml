@@ -1,7 +1,5 @@
 name: Daily Cryptopedia Report
 on:
-  schedule:
-    - cron: '0 0,3,6,9,12,15,18,21 * * *'
   workflow_dispatch:
 permissions:
   contents: write
