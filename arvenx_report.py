@@ -1,187 +1,177 @@
-import requests
-import re
-import json
-import os
-from datetime import datetime
-import pytz
+from playwright.sync_api import sync_playwright
+import re, requests, json, os, base64
+from datetime import datetime, timezone, timedelta
 
 TOKEN      = '8197716132:AAEni6HiCi-uuH1hDGnirET92bztXaa-Vn8'
 CHAT_ID    = '2028252779'
-DUBAI_TZ   = pytz.timezone('Asia/Dubai')
-STATE_FILE = 'arvenx_prev_state.json'
-
+DUBAI = timezone(timedelta(hours=4))
+GH_TOKEN = os.environ.get('GITHUB_TOKEN', '')
+GH_REPO = 'ismail-onebullex/cryptopedia-bot'
+GH_HEADERS = {'Authorization': f'token {GH_TOKEN}', 'Accept': 'application/vnd.github.v3+json'}
 BOTS = [
     {
-        'name':      'ArvenX-AI',
-        'label':     'ArvenX-AI',
-        'url':       'https://www.onebullex.com/spartan-bot/ArvenX-AI',
-        'emoji':     '⚔️',
-        'total_pnl': 1066.25,
-        'total_fee': 271.64,
+        'name': 'ArvenX-AI', 'label': 'ArvenX-AI',
+        'url': 'https://www.onebullex.com/spartan-bot/ArvenX-AI',
+        'emoji': '⚔️', 'total_pnl': 1066.25, 'total_fee': 271.64,
     },
     {
-        'name':      'PerzamAI',
-        'label':     'PerzamAI',
-        'url':       'https://www.onebullex.com/spartan-bot/PerzamAI',
-        'emoji':     'U0001f6e1️',
-        'total_pnl': 0.0,
-        'total_fee': 0.0,
+        'name': 'PerzamAI', 'label': 'PerzamAI',
+        'url': 'https://www.onebullex.com/spartan-bot/PerzamAI',
+        'emoji': 'U0001f6e1️', 'total_pnl': 0.0, 'total_fee': 0.0,
     },
 ]
 
-def parse_vol(s):
-    if not s:
-        return 0.0
-    s = s.replace('$', '').replace(',', '').strip()
-    if s.upper().endswith('M'):
-        return float(s[:-1]) * 1_000_000
-    if s.upper().endswith('K'):
-        return float(s[:-1]) * 1_000
-    if s.upper().endswith('B'):
-        return float(s[:-1]) * 1_000_000_000
-    try:
-        return float(s)
-    except Exception:
-        return 0.0
-
-def fmt_usd(n):
-    if abs(n) >= 1_000_000:
-        return f'${n/1_000_000:.2f}M'
+def fu(n):
+    if n >= 1e6: return f'${n/1e6:.2f}M'
     return f'${n:,.2f}'
 
-def send_telegram(msg):
-    url = f'https://api.telegram.org/bot{TOKEN}/sendMessage'
-    resp = requests.post(url, json={
-        'chat_id': CHAT_ID,
-        'text': msg,
-        'parse_mode': 'HTML'
-    }, timeout=10)
-    return resp
+def fd(n):
+    sign = '+' if n >= 0 else ''
+    if abs(n) >= 1e6: return f'{sign}${abs(n)/1e6:.2f}M'
+    return f'{sign}${n:,.2f}'
 
-def fetch_bot(bot):
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
-    r = requests.get(bot['url'], headers=headers, timeout=15)
-    t = r.text
-    subs_m   = re.search(r'(\d[\d,]*)\s*Subscribers', t)
-    aum_m    = re.search(r'AUM\s*\(USDT\)\s*\$([\d,]+\.?\d*)', t)
-    roi_m    = re.search(r'30d ROI\s*\(%\)\s*([\d.]+)%', t)
-    win_m    = re.search(r'Win Rate\s*\(%\)\s*([\d.]+)%', t)
-    trades_m = re.search(r'Total Trades\s*([\d,]+)', t)
-    vol_m    = re.search(r'Trading Volume\s*\$([\d.]+[MKBmkb]?)', t)
-    subs   = subs_m.group(1)   if subs_m   else '--'
-    aum    = aum_m.group(1)    if aum_m    else '0'
-    roi    = roi_m.group(1)    if roi_m    else '0'
-    win    = win_m.group(1)    if win_m    else '0'
-    trades = trades_m.group(1) if trades_m else '0'
-    vol_s  = vol_m.group(1)    if vol_m    else '0'
-    vol_n  = parse_vol(vol_s)
-    return {'subs': subs, 'aum': aum, 'roi': roi, 'win': win, 'trades': trades, 'vol_s': vol_s, 'vol_n': vol_n}
+def pv(s):
+    if not s or s == '-': return 0
+    s = s.replace('$','').replace(',','').strip()
+    if s.endswith('M'): return float(s[:-1])*1e6
+    if s.endswith('K'): return float(s[:-1])*1e3
+    try: return float(s)
+    except: return 0
 
-def load_state():
-    if os.path.exists(STATE_FILE):
-        with open(STATE_FILE, 'r') as f:
-            return json.load(f)
-    return {}
+def fetch_bot(page, bot):
+    try:
+        page.goto(bot['url'], timeout=60000)
+        page.wait_for_selector('._sparbi_dataleft', timeout=15000)
+        page.wait_for_timeout(2000)
+        left = page.inner_text('._sparbi_dataleft')
+        right = page.inner_text('._sparbi_dataright')
+        body = page.inner_text('body')
+        sm = re.search(r'(\d+)\s*Subscribers', body)
+        am = re.search(r'\$([\d,]+\.?\d*)', left)
+        rm = re.search(r'([\d.]+)%', right)
+        wm = re.search(r'Win Rate[^\d]*((?:[\d.]+))%', left)
+        tm = re.search(r'Total Trades[^\d]*(\d[\d,]*)', left)
+        vm = re.search(r'Trading Volume[^\d]*\$([\d.]+[MKBmkb]?)', left)
+        return {
+            'subs':   sm.group(1)     if sm else '-',
+            'aum':    '$'+am.group(1) if am else '-',
+            'roi':    rm.group(1)+'%' if rm else '-',
+            'win':    wm.group(1)+'%' if wm else '-',
+            'trades': tm.group(1)     if tm else '-',
+            'vs':     '$'+vm.group(1) if vm else '-',
+            'vn':     pv(vm.group(1)) if vm else 0
+        }
+    except Exception as e:
+        print(f'Fetch error {bot["label"]}: {e}')
+        return {'subs':'-','aum':'-','roi':'-','win':'-','trades':'-','vs':'-','vn':0}
 
-def save_state(state):
-    with open(STATE_FILE, 'w') as f:
-        json.dump(state, f)
+def gh_get(path):
+    try:
+        r = requests.get(f'https://api.github.com/repos/{GH_REPO}/contents/{path}', headers=GH_HEADERS)
+        if r.status_code == 200: return r.json()
+    except: pass
+    return None
 
-def send_report():
-    now = datetime.now(DUBAI_TZ)
-    SEP = '━' * 20
-    lines = [
-        '<b>⚔️ ARVENX &amp; PERZAM RAPORU</b>',
-        f'⏰ {now.strftime("%d.%m.%Y %H:%M")} (Dubai)',
-        SEP,
-    ]
-    total_vol = total_np = total_km = total_ps = 0.0
-    for bot in BOTS:
-        try:
-            d = fetch_bot(bot)
-        except Exception as e:
-            lines.append(f'{bot["emoji"]} <b>{bot["label"]}</b>: Veri alinamadi ({e})')
-            continue
-        net_pnl  = bot['total_pnl'] - bot['total_fee']
-        komisyon = d['vol_n'] * 0.0005 * 0.6
-        pay      = net_pnl * 0.20
-        toplam   = komisyon + pay
-        total_vol += d['vol_n']; total_np += net_pnl; total_km += komisyon; total_ps += pay
-        lines += [
-            f'{bot["emoji"]} <b>{bot["label"]}</b>',
-            f'   U0001f465 Subs: {d["subs"]}',
-            f'   U0001f4b0 AUM: ${d["aum"]}',
-            f'   U0001f4ca Hacim: ${d["vol_s"]}',
-            f'   U0001f4c8 30d ROI: {d["roi"]}%',
-            f'   U0001f3af Win Rate: {d["win"]}%',
-            f'   U0001f504 Trades: {d["trades"]}',
-            '   ' + '─'*17,
-            f'   U0001f4b5 PnL: {fmt_usd(bot["total_pnl"])}',
-            f'   U0001f4b8 Fee: -{fmt_usd(bot["total_fee"])}',
-            f'   ✅ Net PnL: {fmt_usd(net_pnl)}',
-            f'   U0001f3e6 Komisyon: {fmt_usd(komisyon)}',
-            f'   U0001f48e Pay (%20): {fmt_usd(pay)}',
-            f'   ⭐ TOPLAM: {fmt_usd(toplam)}',
-            SEP,
-        ]
-    lines += [
-        '<b>U0001f4ca GENEL TOPLAM</b>',
-        f'   U0001f4e6 Toplam Hacim: {fmt_usd(total_vol)}',
-        f'   ✅ Toplam Net PnL: {fmt_usd(total_np)}',
-        f'   U0001f3e6 Toplam Komisyon: {fmt_usd(total_km)}',
-        f'   U0001f48e Toplam Pay: {fmt_usd(total_ps)}',
-        f'   ⭐ GENEL TOPLAM: {fmt_usd(total_km + total_ps)}',
-    ]
-    send_telegram('\n'.join(lines))
-    print(f'[{now}] Rapor gonderildi.')
+def gh_put(path, content, msg, sha=None):
+    try:
+        body = {'message': msg, 'content': base64.b64encode(content.encode()).decode()}
+        if sha: body['sha'] = sha
+        requests.put(f'https://api.github.com/repos/{GH_REPO}/contents/{path}', headers=GH_HEADERS, json=body)
+    except Exception as e:
+        print(f'gh_put error: {e}')
 
-def send_daily_change():
-    now = datetime.now(DUBAI_TZ)
-    state = load_state()
-    SEP = '━' * 20
-    lines = [
-        '<b>U0001f305 GUNLUK DEGISIM RAPORU</b>',
-        f'U0001f4c5 {now.strftime("%d.%m.%Y")} (Dubai)',
-        SEP,
-    ]
-    new_state = {}
-    for bot in BOTS:
-        try:
-            d = fetch_bot(bot)
-        except Exception:
-            lines.append(f'{bot["emoji"]} <b>{bot["label"]}</b>: Veri alinamadi')
-            continue
-        key = bot['name']
-        prev = state.get(key, {})
-        vol_n = d['vol_n']
-        net_pnl  = bot['total_pnl'] - bot['total_fee']
-        komisyon = vol_n * 0.0005 * 0.6
-        pay      = net_pnl * 0.20
-        toplam   = komisyon + pay
-        prev_vol  = prev.get('vol_n', vol_n)
-        prev_km   = prev.get('komisyon', komisyon)
-        prev_ps   = prev.get('pay', pay)
-        prev_top  = prev.get('toplam', toplam)
-        prev_subs = prev.get('subs', d['subs'])
-        def chg(v): return f'(+{fmt_usd(v)})' if v >= 0 else f'({fmt_usd(v)})'
-        lines += [
-            f'{bot["emoji"]} <b>{bot["label"]}</b>',
-            f'   U0001f465 Subs: {d["subs"]} (dun: {prev_subs})',
-            f'   U0001f4ca Hacim: ${d["vol_s"]} {chg(vol_n - prev_vol)}',
-            f'   U0001f3e6 Komisyon: {fmt_usd(komisyon)} {chg(komisyon - prev_km)}',
-            f'   U0001f48e Pay: {fmt_usd(pay)} {chg(pay - prev_ps)}',
-            f'   ⭐ Toplam: {fmt_usd(toplam)} {chg(toplam - prev_top)}',
-            SEP,
-        ]
-        new_state[key] = {'vol_n': vol_n, 'komisyon': komisyon, 'pay': pay, 'toplam': toplam, 'subs': d['subs']}
-    save_state(new_state)
-    send_telegram('\n'.join(lines))
-    print(f'[{now}] Gunluk degisim gonderildi.')
+def keep_alive():
+    try:
+        now = datetime.now(DUBAI).strftime('%d.%m.%Y %H:%M')
+        f = gh_get('last_run.txt')
+        sha = f['sha'] if f else None
+        gh_put('last_run.txt', f'Last run: {now} Dubai', 'keep-alive', sha)
+    except: pass
 
-if __name__ == '__main__':
-    import sys
-    mode = sys.argv[1] if len(sys.argv) > 1 else 'report'
-    if mode == 'daily':
-        send_daily_change()
+def send_tg(msg):
+    requests.post('https://api.telegram.org/bot'+TOKEN+'/sendMessage',
+        json={'chat_id':CHAT_ID,'text':msg,'parse_mode':'HTML'}, timeout=10)
+
+def send():
+    now = datetime.now(DUBAI)
+    now_str = now.strftime('%d.%m.%Y %H:%M') + ' (Dubai)'
+    today = now.strftime('%d.%m.%Y')
+    tV = tN = tK = tP = tS = 0
+    SEP = '-------------'
+    msg = '\U0001f4ca <b>Cryptopedia Dashboard</b>\n\U0001f550 ' + now_str + '\n'
+    icons = ['\U0001f536', '\U0001f535']
+    bots_data = []
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        for i, bot in enumerate(BOTS):
+            d = fetch_bot(page, bot)
+            np = bot['pnl'] - bot['fee']
+            km = d['vn'] * 0.0005 * 0.6
+            ps = np * 0.20
+            tV += d['vn']; tN += np; tK += km; tP += ps
+            bots_data.append({**d, 'label': bot['label'], 'pnl': bot['pnl'], 'fee': bot['fee'],
+                               'net_pnl': np, 'komisyon': km, 'profit_share': ps, 'toplam_gelir': km+ps})
+            msg += f'\n{SEP}\n{icons[i]} <b>{bot["label"]}</b>'
+            msg += f'\n\U0001f4b0 AUM: {d["aum"]}  |  \U0001f4c8 ROI: {d["roi"]}'
+            msg += f'\n\U0001f3c6 Win: {d["win"]}  |  \U0001f465 Subs: {d["subs"]}'
+            msg += f'\n\U0001f4ca Volume: {d["vs"]}  |  \U0001f522 Islem: {d["trades"]}'
+            msg += f'\n\u2705 Net PnL: {fu(np)}'
+            msg += f'\n\U0001f7e1 Komisyon: {fu(km)}'
+            msg += f'\n\U0001f7e3 Profit Share: {fu(ps)}'
+            msg += f'\n\U0001f7e2 <b>Toplam Gelir: {fu(km+ps)}</b>'
+        browser.close()
+    msg += f'\n{SEP}\n\U0001f4e6 <b>GENEL TOPLAM</b>'
+    msg += f'\n\U0001f4ca Volume: {fu(tV)}'
+    msg += f'\n\u2705 Net PnL: {fu(tN)}'
+    msg += f'\n\U0001f7e1 Komisyon: {fu(tK)}'
+    msg += f'\n\U0001f7e3 Profit Share: {fu(tP)}'
+    msg += f'\n\U0001f49a <b>Toplam Gelir: {fu(tK+tP)}</b>'
+    send_tg(msg)
+    print(f'[{now_str}] Rapor gonderildi!')
+
+    # data.json kaydet (Mini App icin)
+    data_file = gh_get('data.json')
+    data = {'updated': now_str, 'bots': bots_data,
+            'total': {'volume': tV, 'net_pnl': tN, 'komisyon': tK, 'profit_share': tP, 'toplam_gelir': tK+tP}}
+    gh_put('data.json', json.dumps(data, ensure_ascii=False), 'Update data.json', data_file['sha'] if data_file else None)
+
+    # Keep-alive commit
+    keep_alive()
+
+    # Gunluk degisim - snapshot bugune ait degilse gonder
+    snap_file = gh_get('snapshot.json')
+    current = {'date': today, 'komisyon': tK, 'profit_share': tP, 'toplam_gelir': tK+tP, 'net_pnl': tN, 'volume': tV, 'subs': tS}
+    if snap_file:
+        prev = json.loads(base64.b64decode(snap_file['content']).decode())
+        snap_date = prev.get('date', '')
+        if snap_date != today:
+            # Bugun ilk calisma - degisim hesapla ve gonder
+            dK = tK - prev.get('komisyon', tK)
+            dP = tP - prev.get('profit_share', tP)
+            dG = (tK+tP) - prev.get('toplam_gelir', tK+tP)
+            dN = tN - prev.get('net_pnl', tN)
+            dV = tV - prev.get('volume', tV)
+            dS = tS - prev.get('subs', tS)
+            snap_date_str = prev.get('date', '?')
+            diff = f'\U0001f4c8 <b>Gunluk Degisim</b>\n'
+            diff += f'\U0001f4c5 {snap_date_str} \u2192 {today}\n'
+            diff += f'\n\U0001f465 Subs: {dS:+d} ({prev.get("subs", tS)} → {tS})'
+            diff += f'\n\U0001f4ca Volume: {fd(dV)}'
+            diff += f'\n\u2705 Net PnL: {fd(dN)}'
+            diff += f'\n\U0001f7e1 Komisyon: {fd(dK)}'
+            diff += f'\n\U0001f7e3 Profit Share: {fd(dP)}'
+            emoji = '\U0001f4c8' if dG >= 0 else '\U0001f4c9'
+            diff += f'\n{emoji} <b>Toplam Gelir Farki: {fd(dG)}</b>'
+            send_tg(diff)
+            print(f'[{now_str}] Gunluk degisim gonderildi! ({snap_date} -> {today})')
+            # Snapshot'i guncelle
+            gh_put('snapshot.json', json.dumps(current), 'Update snapshot', snap_file['sha'])
+        else:
+            print(f'[{now_str}] Bugun zaten snapshot var ({snap_date}), degisim gonderilmedi.')
     else:
-        send_report()
+        # Ilk kez - snapshot olustur
+        gh_put('snapshot.json', json.dumps(current), 'Init snapshot')
+        print(f'[{now_str}] Ilk snapshot kaydedildi.')
+
+send()
