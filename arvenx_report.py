@@ -98,7 +98,7 @@ def send():
     today = now.strftime('%d.%m.%Y')
     tV = tN = tK = tP = tS = 0
     SEP = '-------------'
-    msg = '\U0001f4ca <b>Cryptopedia Dashboard</b>\n\U0001f550 ' + now_str + '\n'
+    msg = '\U0001f4ca <b>ARVENX & PERZAM Dashboard</b>\n\U0001f550 ' + now_str + '\n'
     icons = ['\U0001f536', '\U0001f535']
     bots_data = []
     with sync_playwright() as p:
