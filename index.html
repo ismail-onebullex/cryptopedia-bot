@@ -2,128 +2,490 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="refresh" content="300">
 <title>Cryptopedia Dashboard</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--tg-theme-bg-color,#111);color:var(--tg-theme-text-color,#f0f0f0);padding:12px;min-height:100vh}
-.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-h1{font-size:16px;font-weight:700}
-.badge{background:#003315;color:#22c55e;font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid #005522}
-.ts{font-size:10px;color:#888;margin-top:3px}
-.rbtn{background:#2563eb;color:#fff;padding:8px 16px;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-weight:600}
-.card{background:var(--tg-theme-secondary-bg-color,#1a1a1a);border-radius:14px;padding:14px;margin-bottom:10px}
-.chdr{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
-.pro-av{background:#2d1f00;color:#f5a623}
-.ai-av{background:#001a2d;color:#4a9eff}
-.ct{font-size:14px;font-weight:600}
-.cs{font-size:10px;color:#666}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
-.box{background:rgba(255,255,255,0.06);border-radius:9px;padding:9px 10px}
-.bl{font-size:10px;color:#888;margin-bottom:3px}
-.bv{font-size:14px;font-weight:600}
-.sep{border:none;border-top:1px solid rgba(255,255,255,0.08);margin:10px 0}
-.hbox{border-radius:10px;padding:12px 14px;margin-bottom:8px}
-.km-box{background:#1c1400}.ps-box{background:#120d2a}.gt-box{background:#001a0a}
-.hbl{font-size:10px;margin-bottom:4px}
-.km-box .hbl{color:#b37700}.ps-box .hbl{color:#7c5cbf}.gt-box .hbl{color:#166534}
-.hbv{font-size:22px;font-weight:700}
-.km-box .hbv{color:#f59e0b}.ps-box .hbv{color:#a78bfa}.gt-box .hbv{color:#22c55e}
-.total-card{background:var(--tg-theme-secondary-bg-color,#1a1a1a);border-radius:14px;padding:14px;margin-bottom:10px}
-.tg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.ti{text-align:center;background:rgba(255,255,255,0.06);border-radius:9px;padding:10px 5px}
-.tl{font-size:9px;color:#888;margin-bottom:3px}
-.tv{font-size:15px;font-weight:700}
-.grand{background:#001a0a;border-radius:11px;padding:14px;text-align:center}
-.gl{font-size:11px;color:#166534;margin-bottom:4px}
-.gv{font-size:28px;font-weight:700;color:#22c55e}
-.g{color:#22c55e}.r{color:#ef4444}.amber{color:#f59e0b}.purple{color:#a78bfa}
-.err{color:#ef4444;font-size:12px;text-align:center;padding:8px}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --bg: #0a0e1a;
+    --card: #111827;
+    --card2: #1a2235;
+    --border: #1e2d45;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --green: #10b981;
+    --red: #ef4444;
+    --gold: #f59e0b;
+    --text: #f1f5f9;
+    --muted: #64748b;
+    --glow: 0 0 40px rgba(59,130,246,0.15);
+  }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(ellipse at 20% 20%, rgba(59,130,246,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(6,182,212,0.06) 0%, transparent 50%);
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(17,24,39,0.8);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 15px rgba(59,130,246,0.4);
+  }
+
+  .logo-text { font-size: 20px; font-weight: 700; }
+  .logo-text span { color: #3b82f6; }
+
+  .live-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px; font-weight: 600;
+    color: var(--green);
+  }
+
+  .live-dot {
+    width: 7px; height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .last-update {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  main { padding: 32px; max-width: 1400px; margin: 0 auto; }
+
+  .section-title {
+    font-size: 13px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .section-title::after {
+    content: ''; flex: 1;
+    height: 1px; background: var(--border);
+  }
+
+  .bots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(640px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+
+  .bot-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--glow);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .bot-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 60px rgba(59,130,246,0.2);
+  }
+
+  .bot-header {
+    padding: 20px 24px;
+    background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(6,182,212,0.05));
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .bot-name {
+    font-size: 18px; font-weight: 700;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .bot-badge {
+    font-size: 11px; font-weight: 600;
+    background: rgba(59,130,246,0.2);
+    border: 1px solid rgba(59,130,246,0.4);
+    color: #93c5fd;
+    padding: 3px 10px; border-radius: 20px;
+  }
+
+  .subs-badge {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 13px; color: var(--muted);
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .metric {
+    background: var(--card);
+    padding: 18px 20px;
+    text-align: center;
+  }
+
+  .metric-label {
+    font-size: 11px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .metric-value {
+    font-size: 20px; font-weight: 700;
+  }
+
+  .metric-value.positive { color: var(--green); }
+  .metric-value.neutral { color: var(--accent2); }
+
+  .financials {
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .fin-row {
+    display: flex; flex-direction: column;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+
+  .fin-label {
+    font-size: 11px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+
+  .fin-value {
+    font-size: 17px; font-weight: 700;
+  }
+
+  .fin-value.positive { color: var(--green); }
+  .fin-value.negative { color: var(--red); }
+  .fin-value.gold { color: var(--gold); }
+  .fin-value.blue { color: #93c5fd; }
+
+  .fin-full {
+    grid-column: 1 / -1;
+  }
+
+  .total-card {
+    margin: 0 24px 24px;
+    background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(6,182,212,0.05));
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 16px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .total-label {
+    font-size: 13px; color: var(--green); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  .total-value {
+    font-size: 28px; font-weight: 800;
+    color: var(--green);
+    text-shadow: 0 0 20px rgba(16,185,129,0.4);
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+  }
+
+  .summary-icon { font-size: 24px; margin-bottom: 10px; }
+  .summary-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.8px; }
+  .summary-val { font-size: 22px; font-weight: 700; }
+
+  .refresh-bar {
+    text-align: center;
+    padding: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    margin-top: 24px;
+  }
+
+  .loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    gap: 20px;
+  }
+
+  .spinner {
+    width: 50px; height: 50px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-box {
+    text-align: center;
+    padding: 40px;
+    color: var(--red);
+  }
+
+  footer {
+    text-align: center;
+    padding: 24px;
+    color: var(--muted);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+  }
 </style>
 </head>
 <body>
-<div class="hdr">
-  <div>
-    <h1>Cryptopedia <span class="badge">LIVE</span></h1>
-    <div class="ts" id="ts">Yukleniyor...</div>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">📊</div>
+    <div class="logo-text"><span>Crypto</span>pedia Dashboard</div>
   </div>
-  <button class="rbtn" onclick="load()">&#x21BB; Guncelle</button>
-</div>
-<div id="content"><div style="text-align:center;padding:40px;color:#666">Yukleniyor...</div></div>
-<div class="err" id="err"></div>
+  <div class="live-badge">
+    <div class="live-dot"></div>
+    CANLI
+  </div>
+  <div class="last-update" id="lastUpdate">Yükleniyor...</div>
+</header>
+
+<main>
+  <div id="content">
+    <div class="loader">
+      <div class="spinner"></div>
+      <div style="color: var(--muted)">Veriler yükleniyor...</div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  Cryptopedia Bot Dashboard · Her 5 dakikada bir otomatik yenilenir · OneBullex
+</footer>
 
 <script>
-try{window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();}catch(e){}
+const CACHE_BUST = Date.now();
+const DATA_URL = `https://raw.githubusercontent.com/ismail-onebullex/cryptopedia-bot/main/data.json?cb=${CACHE_BUST}`;
 
-var DATA_URL = "https://api.github.com/repos/ismail-onebullex/cryptopedia-bot/contents/data.json";
-
-function fu(n) {
-  if(typeof n !== "number" || isNaN(n)) return "-";
-  if(n >= 1000000) return "$" + (n/1000000).toFixed(2) + "M";
-  return "$" + n.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+function fmt(n) {
+  if (Math.abs(n) >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+  return '$' + n.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2});
 }
 
-function botCard(b, cls) {
-  var icon = cls === "pro-av" ? "PRO" : "AI";
-  var html = "";
-  html += "<div class=\"card\">";
-  html += "<div class=\"chdr\"><div class=\"av " + cls + "\">" + icon + "</div>";
-  html += "<div><div class=\"ct\">" + b.label + "</div><div class=\"cs\">onebullex.com</div></div></div>";
-  html += "<div class=\"grid\">";
-  html += "<div class=\"box\"><div class=\"bl\">AUM</div><div class=\"bv\">" + (b.aum||"-") + "</div></div>";
-  html += "<div class=\"box\"><div class=\"bl\">30d ROI</div><div class=\"bv g\">" + (b.roi||"-") + "</div></div>";
-  html += "<div class=\"box\"><div class=\"bl\">Win Rate</div><div class=\"bv\">" + (b.win||"-") + "</div></div>";
-  html += "<div class=\"box\"><div class=\"bl\">Subscribers</div><div class=\"bv\">" + (b.subs||"-") + "</div></div>";
-  html += "<div class=\"box\"><div class=\"bl\">Islem</div><div class=\"bv\">" + (b.trades||"-") + "</div></div>";
-  html += "<div class=\"box\"><div class=\"bl\">Volume</div><div class=\"bv\">" + (b.vs||"-") + "</div></div>";
-  html += "</div><hr class=\"sep\">";
-  html += "<div class=\"grid\">";
-  html += "<div class=\"box\"><div class=\"bl\">Toplam PnL</div><div class=\"bv g\">" + fu(b.pnl) + "</div></div>";
-  html += "<div class=\"box\"><div class=\"bl\">Fee</div><div class=\"bv r\">-" + fu(b.fee) + "</div></div>";
-  html += "<div class=\"box\" style=\"grid-column:span 2\"><div class=\"bl\">Net PnL</div><div class=\"bv g\">" + fu(b.net_pnl) + "</div></div>";
-  html += "</div><hr class=\"sep\">";
-  html += "<div class=\"hbox km-box\"><div class=\"hbl\">Komisyon</div><div class=\"hbv\">" + fu(b.komisyon) + "</div></div>";
-  html += "<div class=\"hbox ps-box\"><div class=\"hbl\">Profit Share (%20)</div><div class=\"hbv\">" + fu(b.profit_share) + "</div></div>";
-  html += "<div class=\"hbox gt-box\"><div class=\"hbl\">Toplam Gelir</div><div class=\"hbv\">" + fu(b.toplam_gelir) + "</div></div>";
-  html += "</div>";
-  return html;
+function fmtSigned(n) {
+  const sign = n >= 0 ? '+' : '';
+  return sign + fmt(n);
 }
 
-function load() {
-  document.getElementById("err").textContent = "";
-  document.getElementById("ts").textContent = "Yukleniyor...";
-  fetch(DATA_URL, {headers: {'Accept': 'application/vnd.github.v3+json'}})
-    .then(function(r) {
-      if(!r.ok) throw new Error("Veri alinamadi: " + r.status);
-      return r.json().then(function(api){var c=atob(api.content.replace(/\\n/g,''));return JSON.parse(c);});
-    })
-    .then(function(data) {
-      var t = data.total;
-      var html = "";
-      if(data.bots && data.bots.length > 0) {
-        html += botCard(data.bots[0], "pro-av");
-        if(data.bots.length > 1) html += botCard(data.bots[1], "ai-av");
-      }
-      html += "<div class=\"total-card\">";
-      html += "<div class=\"tg\">";
-      html += "<div class=\"ti\"><div class=\"tl\">Toplam Volume</div><div class=\"tv\">" + fu(t.volume) + "</div></div>";
-      html += "<div class=\"ti\"><div class=\"tl\">Net PnL</div><div class=\"tv g\">" + fu(t.net_pnl) + "</div></div>";
-      html += "<div class=\"ti\"><div class=\"tl\">Komisyon</div><div class=\"tv amber\">" + fu(t.komisyon) + "</div></div>";
-      html += "<div class=\"ti\"><div class=\"tl\">Profit Share</div><div class=\"tv purple\">" + fu(t.profit_share) + "</div></div>";
-      html += "</div><div class=\"grand\"><div class=\"gl\">TOPLAM GELIR</div><div class=\"gv\">" + fu(t.toplam_gelir) + "</div></div>";
-      html += "</div>";
-      document.getElementById("content").innerHTML = html;
-      document.getElementById("ts").textContent = "Son: " + (data.updated || "-");
-    })
-    .catch(function(e) {
-      document.getElementById("err").textContent = "Hata: " + e.message;
-      document.getElementById("ts").textContent = "Hata";
-    });
+function renderBot(bot) {
+  const netPnl = bot.net_pnl || 0;
+  const komisyon = bot.komisyon || 0;
+  const profitShare = bot.profit_share || 0;
+  const toplamGelir = bot.toplam_gelir || 0;
+
+  return `
+  <div class="bot-card">
+    <div class="bot-header">
+      <div class="bot-name">
+        🤖 ${bot.label}
+        <span class="bot-badge">SPARTAN BOT</span>
+      </div>
+      <div class="subs-badge">👥 ${bot.subs} Abone</div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric">
+        <div class="metric-label">AUM</div>
+        <div class="metric-value neutral">${bot.aum}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">30d ROI</div>
+        <div class="metric-value positive">${bot.roi}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Kazanma Oranı</div>
+        <div class="metric-value positive">${bot.win}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Toplam İşlem</div>
+        <div class="metric-value">${bot.trades}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Hacim</div>
+        <div class="metric-value neutral">${bot.vs}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Net PNL</div>
+        <div class="metric-value ${netPnl >= 0 ? 'positive' : ''}">${fmtSigned(netPnl)}</div>
+      </div>
+    </div>
+
+    <div class="financials">
+      <div class="fin-row">
+        <div class="fin-label">⚡ Brüt PNL</div>
+        <div class="fin-value positive">${fmt(bot.pnl)}</div>
+      </div>
+      <div class="fin-row">
+        <div class="fin-label">💸 Toplam Fee</div>
+        <div class="fin-value negative">-${fmt(bot.fee)}</div>
+      </div>
+      <div class="fin-row">
+        <div class="fin-label">🏦 Komisyon (%24)</div>
+        <div class="fin-value negative">-${fmt(komisyon)}</div>
+      </div>
+      <div class="fin-row">
+        <div class="fin-label">💰 Kâr Payı (%20)</div>
+        <div class="fin-value negative">-${fmt(profitShare)}</div>
+      </div>
+      <div class="fin-row fin-full">
+        <div class="fin-label">🎯 Net Kazanç</div>
+        <div class="fin-value gold" style="font-size:22px">${fmtSigned(toplamGelir)}</div>
+      </div>
+    </div>
+
+    <div class="total-card">
+      <div class="total-label">✅ Toplam Net Kazanç</div>
+      <div class="total-value">${fmtSigned(toplamGelir)}</div>
+    </div>
+  </div>
+  `;
 }
 
-load();
+async function loadData() {
+  try {
+    const res = await fetch(DATA_URL);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    document.getElementById('lastUpdate').textContent = '🕐 ' + (data.updated || 'Bilinmiyor');
+
+    const bots = data.bots || [];
+    const totalNet = bots.reduce((s, b) => s + (b.toplam_gelir || 0), 0);
+    const totalBrut = bots.reduce((s, b) => s + (b.pnl || 0), 0);
+    const totalFee = bots.reduce((s, b) => s + (b.fee || 0), 0);
+    const totalSubs = bots.reduce((s, b) => s + parseInt(b.subs || 0), 0);
+
+    document.getElementById('content').innerHTML = `
+      <div class="section-title">📈 Genel Özet</div>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-icon">💵</div>
+          <div class="summary-label">Toplam Brüt PNL</div>
+          <div class="summary-val" style="color:#10b981">${fmt(totalBrut)}</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon">🎯</div>
+          <div class="summary-label">Toplam Net Kazanç</div>
+          <div class="summary-val" style="color:#f59e0b">${fmtSigned(totalNet)}</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon">💸</div>
+          <div class="summary-label">Toplam Fee</div>
+          <div class="summary-val" style="color:#ef4444">-${fmt(totalFee)}</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon">👥</div>
+          <div class="summary-label">Toplam Abone</div>
+          <div class="summary-val" style="color:#93c5fd">${totalSubs}</div>
+        </div>
+      </div>
+
+      <div class="section-title">🤖 Bot Detayları</div>
+      <div class="bots-grid">
+        ${bots.map(renderBot).join('')}
+      </div>
+
+      <div class="refresh-bar">
+        ⟳ Sayfa her 5 dakikada bir otomatik yenilenir &nbsp;·&nbsp; Şu anki veri: <strong>${data.updated || '-'}</strong>
+      </div>
+    `;
+  } catch(e) {
+    document.getElementById('content').innerHTML = `
+      <div class="error-box">
+        <div style="font-size:48px;margin-bottom:16px">⚠️</div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:8px">Veri Yüklenemedi</div>
+        <div style="color:#64748b">${e.message}</div>
+        <div style="margin-top:16px;font-size:13px;color:#475569">Sayfa 30 saniye sonra otomatik yenilenecek</div>
+      </div>
+    `;
+    setTimeout(() => location.reload(), 30000);
+  }
+}
+
+loadData();
+// Her 5 dakikada veriyi yeniden çek (sayfayı reload etmeden)
+setInterval(() => {
+  const url = `https://raw.githubusercontent.com/ismail-onebullex/cryptopedia-bot/main/data.json?cb=${Date.now()}`;
+  fetch(url).then(r=>r.json()).then(data => {
+    document.getElementById('lastUpdate').textContent = '🕐 ' + (data.updated || 'Bilinmiyor');
+    // Full re-render
+    location.reload();
+  }).catch(()=>{});
+}, 5*60*1000);
 </script>
 </body>
 </html>
