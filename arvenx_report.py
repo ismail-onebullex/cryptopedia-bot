@@ -12,12 +12,12 @@ BOTS = [
     {
         'name': 'ArvenX-AI', 'label': 'ArvenX-AI',
         'url': 'https://www.onebullex.com/spartan-bot/ArvenX-AI',
-        'emoji': '⚔️', 'total_pnl': 1066.25, 'total_fee': 271.64,
+        'emoji': '⚔️', 'pnl': 1066.25, 'fee': 271.64,
     },
     {
         'name': 'PerzamAI', 'label': 'PerzamAI',
         'url': 'https://www.onebullex.com/spartan-bot/PerzamAI',
-        'emoji': 'U0001f6e1️', 'total_pnl': 0.0, 'total_fee': 0.0,
+        'emoji': 'U0001f6e1️', 'pnl': 0.0, 'fee': 0.0,
     },
 ]
 
