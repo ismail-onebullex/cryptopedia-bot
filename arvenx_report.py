@@ -3,7 +3,7 @@ import re, requests, json, os, base64
 from datetime import datetime, timezone, timedelta
 
 TOKEN      = '8197716132:AAEni6HiCi-uuH1hDGnirET92bztXaa-Vn8'
-CHAT_ID    = '-5144582160'
+CHAT_IDS   = ['2028252779', '-5144582160']
 DUBAI = timezone(timedelta(hours=4))
 GH_TOKEN = os.environ.get('GITHUB_TOKEN', '')
 GH_REPO = 'ismail-onebullex/cryptopedia-bot'
@@ -89,8 +89,9 @@ def keep_alive():
     except: pass
 
 def send_tg(msg):
-    requests.post('https://api.telegram.org/bot'+TOKEN+'/sendMessage',
-        json={'chat_id':CHAT_ID,'text':msg,'parse_mode':'HTML'}, timeout=10)
+    for cid in CHAT_IDS:
+        requests.post('https://api.telegram.org/bot'+TOKEN+'/sendMessage',
+            json={'chat_id':cid,'text':msg,'parse_mode':'HTML'}, timeout=10)
 
 def send():
     now = datetime.now(DUBAI)
