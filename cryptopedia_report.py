@@ -91,7 +91,7 @@ def send():
     tV = tN = tK = tP = tS = 0
     SEP = '-------------'
     msg = '\U0001f4ca <b>Cryptopedia Dashboard</b>\n\U0001f550 ' + now_str + '\n'
-    icons = ['\U0001f536', '\U0001f535']
+    icons = ['\u2694\ufe0f', '\U0001f6e1\ufe0f']
     bots_data = []
     with sync_playwright() as p:
         browser = p.chromium.launch()
@@ -148,7 +148,7 @@ def send():
             snap_date_str = prev.get('date', '?')
             diff = f'\U0001f4c8 <b>Gunluk Degisim</b>\n'
             diff += f'\U0001f4c5 {snap_date_str} \u2192 {today}\n'
-            diff += f'\n\U0001f465 Subs: {dS:+d} ({prev.get("subs", tS)} → {tS})'
+            diff += f'\n\U0001f465 Subs: {dS:+d} ({prev.get("subs", tS)} â {tS})'
             diff += f'\n\U0001f4ca Volume: {fd(dV)}'
             diff += f'\n\u2705 Net PnL: {fd(dN)}'
             diff += f'\n\U0001f7e1 Komisyon: {fd(dK)}'
