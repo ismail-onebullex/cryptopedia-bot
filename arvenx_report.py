@@ -3,7 +3,7 @@ import re, requests, json, os, base64
 from datetime import datetime, timezone, timedelta
 
 TOKEN      = '8197716132:AAEni6HiCi-uuH1hDGnirET92bztXaa-Vn8'
-CHAT_ID    = '2028252779'
+CHAT_ID    = '-5144582160'
 DUBAI = timezone(timedelta(hours=4))
 GH_TOKEN = os.environ.get('GITHUB_TOKEN', '')
 GH_REPO = 'ismail-onebullex/cryptopedia-bot'
