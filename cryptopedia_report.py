@@ -151,7 +151,7 @@ def send():
             snap_date_str = prev.get('date', '?')
             diff = f'\U0001f4c8 <b>Gunluk Degisim</b>\n'
             diff += f'\U0001f4c5 {snap_date_str} \u2192 {today}\n'
-            diff += f'\n\U0001f465 Subs: {dS:+d} ({prev.get("subs", tS)} â {tS})'
+            diff += f'\n\U0001f465 Subs: {dS:+d} ({prev.get("subs", tS)} → {tS})'
             diff += f'\n\U0001f4ca Volume: {fd(dV)}'
             diff += f'\n\u2705 Net PnL: {fd(dN)}'
             diff += f'\n\U0001f7e1 Komisyon: {fd(dK)}'
