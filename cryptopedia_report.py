@@ -46,7 +46,8 @@ def fetch_bot(page, bot):
         vm = re.search(r'Trading Volume[^\d]*\$([\d.]+[MKBmkb]?)', left)
         return {
             'subs':   sm.group(1)     if sm else '-',
-            'aum':    '
+            'aum':    '$'+am.group(1) if am else '-',
+            'an':     float(am.group(1).replace(',','')) if am else 0,
             'roi':    rm.group(1)+'%' if rm else '-',
             'win':    wm.group(1)+'%' if wm else '-',
             'trades': tm.group(1)     if tm else '-',
