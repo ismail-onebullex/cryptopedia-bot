@@ -7,7 +7,7 @@ CHAT_ID = '2028252779'
 DUBAI = timezone(timedelta(hours=4))
 GH_TOKEN = os.environ.get('GITHUB_TOKEN', '')
 GH_REPO = 'ismail-onebullex/cryptopedia-bot'
-GH_HEADERS = {'Authorization': f'token {GH_TOKEN}', 'Accept': 'application/vnd.github.v3+json'}
+GH_HEADERS = {'Authorization': f'token {GH_TOKEN}', 'ccept': 'application/vnd.github.v3+json'}
 BOTS = [
     {'url':'https://www.onebullex.com/spartan-bot/Cryptopedia-AI-PRO','pnl':4986.17,'fee':1893.13,'label':'Cryptopedia-AI-PRO'},
     {'url':'https://www.onebullex.com/spartan-bot/CryptopediaAI','pnl':13772.74,'fee':4556.36,'label':'CryptopediaAI'}
@@ -148,7 +148,7 @@ def send():
             snap_date_str = prev.get('date', '?')
             diff = f'\U0001f4c8 <b>Gunluk Degisim</b>\n'
             diff += f'\U0001f4c5 {snap_date_str} \u2192 {today}\n'
-            diff += f'\n\U0001f465 Subs: {dS:+d} ({prev.get("subs", tS)} â {tS})'
+            diff += f'\n\U0001f465 Subs: {dS:+d} ({prev.get("subs", tS)} → {tS})'
             diff += f'\n\U0001f4ca Volume: {fd(dV)}'
             diff += f'\n\u2705 Net PnL: {fd(dN)}'
             diff += f'\n\U0001f7e1 Komisyon: {fd(dK)}'
