@@ -123,7 +123,7 @@ def send():
         page = browser.new_page()
         for i, bot in enumerate(BOTS):
             d = fetch_bot(page, bot)
-            np = d['an'] * d['rn'] / 100
+            np = d.get('np', d['an'] * d['rn'] / 100)
             km = d['vn'] * 0.0005 * 0.6
             ps = np * 0.20
             tA += d['an']
