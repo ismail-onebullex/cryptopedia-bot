@@ -48,9 +48,12 @@ def fetch_bot(page, bot):
         gross_pnl = 0.0
         tx_fee = 0.0
         pg = 1
+        # 2. tabloyu bekle ve seç
+        page.wait_for_selector('table + table', timeout=10000)
         while True:
             page.wait_for_timeout(1000)
-            rows = page.query_selector_all('table:nth-of-type(2) tr')
+            tables = page.query_selector_all('table')
+            rows = tables[1].query_selector_all('tr') if len(tables) > 1 else []
             for row in rows[1:]:
                 cols = row.query_selector_all('td')
                 if len(cols) >= 7:
