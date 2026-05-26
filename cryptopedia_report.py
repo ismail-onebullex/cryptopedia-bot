@@ -49,6 +49,7 @@ def fetch_bot(page, bot):
             'aum':    '$'+am.group(1) if am else '-',
             'an':     float(am.group(1).replace(',','')) if am else 0,
             'roi':    rm.group(1)+'%' if rm else '-',
+            'rn':     float(rm.group(1)) if rm else 0,
             'win':    wm.group(1)+'%' if wm else '-',
             'trades': tm.group(1)     if tm else '-',
             'vs':     '$'+vm.group(1) if vm else '-',
@@ -56,7 +57,7 @@ def fetch_bot(page, bot):
         }
     except Exception as e:
         print(f'Fetch error {bot["label"]}: {e}')
-        return {'subs':'-','aum':'-','roi':'-','win':'-','trades':'-','vs':'-','vn':0,'an':0}
+        return {'subs':'-','aum':'-','roi':'-','win':'-','trades':'-','vs':'-','vn':0,'an':0,'rn':0}
 
 def gh_get(path):
     try:
@@ -99,7 +100,7 @@ def send():
         page = browser.new_page()
         for i, bot in enumerate(BOTS):
             d = fetch_bot(page, bot)
-            np = bot['pnl'] - bot['fee']
+            np = d['an'] * d['rn'] / 100
             km = d['vn'] * 0.0005 * 0.6
             ps = np * 0.20
             tA += d['an']
@@ -151,7 +152,7 @@ def send():
             snap_date_str = prev.get('date', '?')
             diff = f'\U0001f4c8 <b>Gunluk Degisim</b>\n'
             diff += f'\U0001f4c5 {snap_date_str} \u2192 {today}\n'
-            diff += f'\n\U0001f465 Subs: {dS:+d} ({prev.get("subs", tS)} → {tS})'
+            diff += f'\n\U0001f465 Subs: {dS:+d} ({prev.get("subs", tS)} â {tS})'
             diff += f'\n\U0001f4ca Volume: {fd(dV)}'
             diff += f'\n\u2705 Net PnL: {fd(dN)}'
             diff += f'\n\U0001f7e1 Komisyon: {fd(dK)}'
