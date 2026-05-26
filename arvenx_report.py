@@ -12,12 +12,12 @@ BOTS = [
     {
         'name': 'ArvenX-AI', 'label': 'ArvenX-AI',
         'url': 'https://www.onebullex.com/spartan-bot/ArvenX-AI',
-        'emoji': '⚔️', 'pnl': 1066.25, 'fee': 271.64,
+        'emoji': 'âï¸', 'pnl': 1066.25, 'fee': 271.64,
     },
     {
         'name': 'PerzamAI', 'label': 'PerzamAI',
         'url': 'https://www.onebullex.com/spartan-bot/PerzamAI',
-        'emoji': 'U0001f6e1️', 'pnl': 0.0, 'fee': 0.0,
+        'emoji': 'U0001f6e1ï¸', 'pnl': 0.0, 'fee': 0.0,
     },
 ]
 
@@ -52,6 +52,34 @@ def fetch_bot(page, bot):
         wm = re.search(r'Win Rate[^\d]*((?:[\d.]+))%', left)
         tm = re.search(r'Total Trades[^\d]*(\d[\d,]*)', left)
         vm = re.search(r'Trading Volume[^\d]*\$([\d.]+[MKBmkb]?)', left)
+        # Order history: JS ile tum sayfalari tara
+        page.wait_for_timeout(3000)
+        gross_pnl = 0.0
+        tx_fee = 0.0
+        for pg_num in range(50):
+            page.wait_for_timeout(800)
+            result = page.evaluate("""() => {
+                let pnl = 0, fee = 0;
+                const tables = document.querySelectorAll('table');
+                if (tables.length >= 2) {
+                    tables[1].querySelectorAll('tr').forEach((r,i) => {
+                        if (i===0) return;
+                        const c = r.querySelectorAll('td');
+                        if (c.length>=7) {
+                            pnl += parseFloat(c[5].innerText.replace(/[$,]/g,''))||0;
+                            fee += parseFloat(c[6].innerText.replace(/[$,]/g,''))||0;
+                        }
+                    });
+                }
+                const nxt = document.querySelector('.ant-pagination-next:not(.ant-pagination-disabled) button');
+                if (nxt) nxt.click();
+                return {pnl, fee, hasNext: !!nxt};
+            }""")
+            gross_pnl += result.get('pnl', 0)
+            tx_fee += result.get('fee', 0)
+            if not result.get('hasNext', False):
+                break
+        net_pnl = gross_pnl - tx_fee
         return {
             'subs':   sm.group(1)     if sm else '-',
             'aum':    '$'+am.group(1) if am else '-',
@@ -59,11 +87,12 @@ def fetch_bot(page, bot):
             'win':    wm.group(1)+'%' if wm else '-',
             'trades': tm.group(1)     if tm else '-',
             'vs':     '$'+vm.group(1) if vm else '-',
-            'vn':     pv(vm.group(1)) if vm else 0
+            'vn':     pv(vm.group(1)) if vm else 0,
+            'np':     net_pnl
         }
     except Exception as e:
         print(f'Fetch error {bot["label"]}: {e}')
-        return {'subs':'-','aum':'-','roi':'-','win':'-','trades':'-','vs':'-','vn':0}
+        return {'subs':'-','aum':'-','roi':'-','win':'-','trades':'-','vs':'-','vn':0,'np':0}
 
 def gh_get(path):
     try:
@@ -107,7 +136,7 @@ def send():
         page = browser.new_page()
         for i, bot in enumerate(BOTS):
             d = fetch_bot(page, bot)
-            np = bot['pnl'] - bot['fee']
+            np = d.get('np', 0)
             km = d['vn'] * 0.0005 * 0.6
             ps = np * 0.20
             tV += d['vn']; tN += np; tK += km; tP += ps
@@ -157,7 +186,7 @@ def send():
             snap_date_str = prev.get('date', '?')
             diff = f'\U0001f4c8 <b>Gunluk Degisim</b>\n'
             diff += f'\U0001f4c5 {snap_date_str} \u2192 {today}\n'
-            diff += f'\n\U0001f465 Subs: {dS:+d} ({prev.get("subs", tS)} → {tS})'
+            diff += f'\n\U0001f465 Subs: {dS:+d} ({prev.get("subs", tS)} â {tS})'
             diff += f'\n\U0001f4ca Volume: {fd(dV)}'
             diff += f'\n\u2705 Net PnL: {fd(dN)}'
             diff += f'\n\U0001f7e1 Komisyon: {fd(dK)}'
