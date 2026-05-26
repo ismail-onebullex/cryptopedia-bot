@@ -44,6 +44,28 @@ def fetch_bot(page, bot):
         wm = re.search(r'Win Rate[^\d]*((?:[\d.]+))%', left)
         tm = re.search(r'Total Trades[^\d]*(\d[\d,]*)', left)
         vm = re.search(r'Trading Volume[^\d]*\$([\d.]+[MKBmkb]?)', left)
+        # Order history: tum sayfalari tara
+        gross_pnl = 0.0
+        tx_fee = 0.0
+        pg = 1
+        while True:
+            page.wait_for_timeout(1000)
+            rows = page.query_selector_all('table:nth-of-type(2) tr')
+            for row in rows[1:]:
+                cols = row.query_selector_all('td')
+                if len(cols) >= 7:
+                    try: gross_pnl += float(cols[5].inner_text().replace('$','').replace(',',''))
+                    except: pass
+                    try: tx_fee += float(cols[6].inner_text().replace('$','').replace(',',''))
+                    except: pass
+            next_btn = page.query_selector('.ant-pagination-next:not(.ant-pagination-disabled) button')
+            if not next_btn:
+                break
+            next_btn.click()
+            pg += 1
+            if pg > 50:
+                break
+        net_pnl = gross_pnl - tx_fee
         return {
             'subs':   sm.group(1)     if sm else '-',
             'aum':    '$'+am.group(1) if am else '-',
@@ -53,11 +75,12 @@ def fetch_bot(page, bot):
             'win':    wm.group(1)+'%' if wm else '-',
             'trades': tm.group(1)     if tm else '-',
             'vs':     '$'+vm.group(1) if vm else '-',
-            'vn':     pv(vm.group(1)) if vm else 0
+            'vn':     pv(vm.group(1)) if vm else 0,
+            'np':     net_pnl
         }
     except Exception as e:
         print(f'Fetch error {bot["label"]}: {e}')
-        return {'subs':'-','aum':'-','roi':'-','win':'-','trades':'-','vs':'-','vn':0,'an':0,'rn':0}
+        return {'subs':'-','aum':'-','roi':'-','win':'-','trades':'-','vs':'-','vn':0,'an':0,'rn':0,'np':0}
 
 def gh_get(path):
     try:
@@ -152,7 +175,7 @@ def send():
             snap_date_str = prev.get('date', '?')
             diff = f'\U0001f4c8 <b>Gunluk Degisim</b>\n'
             diff += f'\U0001f4c5 {snap_date_str} \u2192 {today}\n'
-            diff += f'\n\U0001f465 Subs: {dS:+d} ({prev.get("subs", tS)} â {tS})'
+            diff += f'\n\U0001f465 Subs: {dS:+d} ({prev.get("subs", tS)} → {tS})'
             diff += f'\n\U0001f4ca Volume: {fd(dV)}'
             diff += f'\n\u2705 Net PnL: {fd(dN)}'
             diff += f'\n\U0001f7e1 Komisyon: {fd(dK)}'
