@@ -44,29 +44,32 @@ def fetch_bot(page, bot):
         wm = re.search(r'Win Rate[^\d]*((?:[\d.]+))%', left)
         tm = re.search(r'Total Trades[^\d]*(\d[\d,]*)', left)
         vm = re.search(r'Trading Volume[^\d]*\$([\d.]+[MKBmkb]?)', left)
-        # Order history: tum sayfalari tara
+        # Order history: JS ile tum sayfalari tara
+        page.wait_for_timeout(3000)
         gross_pnl = 0.0
         tx_fee = 0.0
-        pg = 1
-        # 2. tabloyu bekle ve seç
-        page.wait_for_selector('table + table', timeout=10000)
-        while True:
-            page.wait_for_timeout(1000)
-            tables = page.query_selector_all('table')
-            rows = tables[1].query_selector_all('tr') if len(tables) > 1 else []
-            for row in rows[1:]:
-                cols = row.query_selector_all('td')
-                if len(cols) >= 7:
-                    try: gross_pnl += float(cols[5].inner_text().replace('$','').replace(',',''))
-                    except: pass
-                    try: tx_fee += float(cols[6].inner_text().replace('$','').replace(',',''))
-                    except: pass
-            next_btn = page.query_selector('.ant-pagination-next:not(.ant-pagination-disabled) button')
-            if not next_btn:
-                break
-            next_btn.click()
-            pg += 1
-            if pg > 50:
+        for pg_num in range(50):
+            page.wait_for_timeout(800)
+            result = page.evaluate("""() => {
+                let pnl = 0, fee = 0;
+                const tables = document.querySelectorAll('table');
+                if (tables.length >= 2) {
+                    tables[1].querySelectorAll('tr').forEach((r,i) => {
+                        if (i===0) return;
+                        const c = r.querySelectorAll('td');
+                        if (c.length>=7) {
+                            pnl += parseFloat(c[5].innerText.replace(/[$,]/g,''))||0;
+                            fee += parseFloat(c[6].innerText.replace(/[$,]/g,''))||0;
+                        }
+                    });
+                }
+                const nxt = document.querySelector('.ant-pagination-next:not(.ant-pagination-disabled) button');
+                if (nxt) nxt.click();
+                return {pnl, fee, hasNext: !!nxt};
+            }""")
+            gross_pnl += result.get('pnl', 0)
+            tx_fee += result.get('fee', 0)
+            if not result.get('hasNext', False):
                 break
         net_pnl = gross_pnl - tx_fee
         return {
@@ -178,7 +181,7 @@ def send():
             snap_date_str = prev.get('date', '?')
             diff = f'\U0001f4c8 <b>Gunluk Degisim</b>\n'
             diff += f'\U0001f4c5 {snap_date_str} \u2192 {today}\n'
-            diff += f'\n\U0001f465 Subs: {dS:+d} ({prev.get("subs", tS)} → {tS})'
+            diff += f'\n\U0001f465 Subs: {dS:+d} ({prev.get("subs", tS)} â {tS})'
             diff += f'\n\U0001f4ca Volume: {fd(dV)}'
             diff += f'\n\u2705 Net PnL: {fd(dN)}'
             diff += f'\n\U0001f7e1 Komisyon: {fd(dK)}'
